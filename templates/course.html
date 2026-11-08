@@ -1,0 +1,10 @@
+{% extends 'base.html' %}{% block body %}<section class="sec"><div class="wrap narrow">{% if c.thumb %}<img class="th big" src="{{ c.thumb }}" alt="">{% endif %}
+<h1>{{ c.title }}</h1><div class="mu">{% if teacher %}by {{ teacher.name }} · {% endif %}{{ c.duration }}{% if c.expires_at %} · Enrol before {{ c.expires_at|dt }}{% endif %}</div><div class="price">{{ c.price|money }}</div>
+<div class="rt">{{ c.desc|clean|safe }}</div>
+{% if access %}<a class="btn" href="/learn/{{ c.slug }}">Go to course</a>
+{% elif expired %}<p class="msg">This course has expired and is closed for enrolment.</p>
+{% elif pend %}<a class="btn" href="/order/{{ pend.id }}">Complete your pending payment</a>
+{% elif user %}<form method="post" action="/enroll/{{ c.id }}" class="card"><input type="hidden" name="csrf" value="{{ csrf }}">{% if c.price %}<label>Coupon code (optional)<input name="coupon" maxlength="30"></label><br>{% endif %}<button class="btn">{{ 'Enrol for free' if not c.price else 'Buy this course' }}</button></form>
+{% else %}<a class="btn" href="/login?next=/course/{{ c.slug }}">Log in to enrol</a>{% endif %}
+<h2>Syllabus</h2>{% set ch = [] %}{% for l in ls %}{% if l.chapter not in ch %}{% set _ = ch.append(l.chapter) %}<h3>{{ l.chapter }}</h3>{% endif %}<div class="row">{{ l.title }} <span class="tag">{{ l.kind }}</span>{% if l.preview %} <a href="/learn/{{ c.slug }}?l={{ l.id }}">Free preview</a>{% endif %}</div>{% else %}<p class="mu">Lessons coming soon.</p>{% endfor %}
+</div></section>{% endblock %}

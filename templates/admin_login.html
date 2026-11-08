@@ -1,0 +1,7 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin login – {{ s.name }}</title>
+<meta name="csrf" content="{{ csrf }}"><meta name="robots" content="noindex"><link rel="stylesheet" href="/static/admin.css"></head>
+<body data-mode="login" class="loginpg"><div class="lbox"><h1>{{ s.name }}</h1><p class="mu">Master Admin Panel</p>
+<form id="lf"><label>Username<input name="username" autocomplete="username" required autofocus></label><label>Password<input type="password" name="password" autocomplete="current-password" required></label>
+<p class="err" id="le"></p><button class="btn">Log in</button> <a href="#" id="fg" class="mu">Forgot password?</a></form>
+<form id="ff" hidden><label>Username or email<input name="username" required></label><p class="mu" id="fm"></p><button class="btn">Send reset link</button> <a href="#" id="bk" class="mu">Back</a></form></div>
+<script src="/static/admin.js"></script></body></html>

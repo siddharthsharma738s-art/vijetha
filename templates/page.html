@@ -1,0 +1,2 @@
+{% extends 'base.html' %}{% block body %}<section class="sec"><div class="wrap narrow"><h1>{{ p.title }}</h1>{% if p.image %}<img class="th big" src="{{ p.image }}" alt="">{% endif %}
+<div class="rt">{{ p.body|clean|safe }}</div>{% if p.link_url %}<p><a class="btn" href="{{ p.link_url }}">{{ p.link_text or 'Learn more' }}</a></p>{% endif %}{% if contact %}{% include '_contact.html' %}{% endif %}</div></section>{% endblock %}

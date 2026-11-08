@@ -1,0 +1,7 @@
+{% extends 'base.html' %}{% block body %}<div class="card fbox"><h2>{{ {'login':'Welcome back','register':'Student registration','forgot':'Forgot password','reset':'Set a new password'}[mode] }}</h2>
+<form method="post"><input type="hidden" name="csrf" value="{{ csrf }}"><input class="hp" name="website" tabindex="-1" autocomplete="off">
+{% if mode == 'register' %}<label>Full name<input name="name" required maxlength="60"></label><label>Username<input name="username" required maxlength="40" autocomplete="username"></label><label>Email<input type="email" name="email"></label><label>Phone<input name="phone" maxlength="20"></label>
+{% elif mode in ('login','forgot') %}<label>{{ 'Username or email' }}<input name="username" required autocomplete="username"></label>{% endif %}
+{% if mode != 'forgot' %}<label>{{ 'New password' if mode == 'reset' else 'Password' }}<input type="password" name="password" required minlength="{{ 6 if mode != 'login' else 1 }}" autocomplete="{{ 'current-password' if mode == 'login' else 'new-password' }}"></label>{% endif %}
+<br><button class="btn">{{ {'login':'Log in','register':'Create account','forgot':'Send reset link','reset':'Save password'}[mode] }}</button></form>
+{% if mode == 'login' %}<p class="mu"><a href="/forgot">Forgot password?</a>{% if s.allow_reg %} · <a href="/register">Create account</a>{% endif %}</p>{% endif %}</div>{% endblock %}

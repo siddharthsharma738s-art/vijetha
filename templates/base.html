@@ -1,0 +1,38 @@
+{% set seo = seo or {} %}{% set dflt = s.p|lower == '#6c35c9' and s.s|lower == '#35145f' %}<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0B1F4B">
+<title>{{ seo.title or s.site_title }}{% if seo.title and seo.title != s.site_title %} – {{ s.name }}{% endif %}</title>
+<meta name="description" content="{{ seo.desc or s.seo_desc or s.site_desc }}">
+{% if s.noindex %}<meta name="robots" content="noindex">{% endif %}
+<meta property="og:title" content="{{ seo.title or s.site_title }}"><meta property="og:description" content="{{ seo.desc or s.site_desc }}">
+{% set og = seo.img or s.og_image %}{% if og %}<meta property="og:image" content="{{ og }}">{% endif %}
+{% if s.favicon %}<link rel="icon" href="{{ s.favicon }}">{% endif %}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={{ s.font|replace(' ','+') }}:wght@400;600;800&family=Sora:wght@600;800&display=swap">
+<link rel="stylesheet" href="/static/site.css">
+<style>:root{--f:'{{ s.font }}'{% if not dflt %};--royal:{{ s.p }};--navy:{{ s.s }};--gold:{{ s.a }}{% endif %}{% if s.bg|lower != '#f8f6ff' %};--bg:{{ s.bg }}{% endif %}}{% if s.bg_img and s.bg_img.startswith('/media/') %}body{background-image:url('{{ s.bg_img }}');background-size:cover;background-attachment:fixed}{% endif %}</style>
+</head>
+<body class="btn-{{ s.btn }}" data-home="{{ 1 if request.path == '/' else 0 }}" data-splash="{{ 1 if s.splash and request.path == '/' and not preview else 0 }}" data-name="{{ s.name }}" data-tag="{{ s.tagline }}">
+{% include '_icons.html' %}{% from '_icons.html' import ic %}
+{% if preview %}<div class="pvbar">Preview mode – drafts and scheduled items are visible to you only. <a href="/admin">Back to admin</a></div>{% endif %}
+{% for n in urgent %}<div class="urg">📢 <b>{{ n.title }}</b> <a href="/notices">Read more</a></div>{% endfor %}
+<header class="hd"><div class="wrap hd-in">
+  <a class="brand" href="/" aria-label="{{ s.name }} – home">{% if s.logo %}<img class="lg-d" src="{{ s.logo }}" alt=""><img class="lg-m" src="{{ s.logo_m or s.logo }}" alt="">{% else %}<span class="mono">{{ s.name[:1] }}</span>{% endif %}
+    <span class="bn"><b>{{ s.name }}</b><small>{{ s.tagline }}</small></span></a>
+  <nav class="pn" aria-label="Primary"><a href="/" data-nav="top">Home</a><a href="/#programs" data-nav="programs">Programs</a><a href="/#admission" data-nav="admission">Admission</a><a href="/#pride" data-nav="pride">Our Pride</a>
+    <a class="sc" href="/courses">Courses</a><a class="sc" href="/live">Live classes</a><a class="sc" href="/news">News</a>
+    <button class="moreb" type="button" data-more aria-expanded="false" aria-controls="more">More {{ ic('more') }}</button></nav>
+  <a class="adm" href="/admin" title="Admin login">{{ ic('shield') }}<span><i class="hid-s">Admin </i>Login</span></a>
+</div></header>
+<div id="more" class="more" hidden><div class="mbk" data-more></div><div class="msheet" role="dialog" aria-label="More">
+  <a class="m-dup" href="/courses">Courses</a><a class="m-dup" href="/live">Live classes</a><a class="m-dup" href="/news">News</a><a href="/teachers">Teachers</a><a href="/notices">Notices</a>
+  {% for p in menu %}<a href="/{{ p.slug }}">{{ p.title }}</a>{% endfor %}<a href="/contact-us">Contact</a>
+  {% if user %}<a href="/account">My account ({{ user.name }})</a><form method="post" action="/logout"><input type="hidden" name="csrf" value="{{ csrf }}"><button type="submit">Log out</button></form>
+  {% else %}<a href="/login">Student login</a>{% if s.allow_reg %}<a href="/register">Student registration</a>{% endif %}{% endif %}
+  <a class="m-adm" href="/admin">{{ ic('shield') }} Admin Login</a></div></div>
+{% with m = get_flashed_messages() %}{% if m %}<div class="wrap"><div class="flash" role="status">{% for x in m %}<div>{{ x }}</div>{% endfor %}</div></div>{% endif %}{% endwith %}
+<main id="main">{% block body %}{% endblock %}</main>
+<footer class="ft"><div class="wrap ft-in"><div><b class="ft-n">{{ s.name }}</b><p>{{ s.tagline }}</p><small>{{ s.footer_text }}</small></div>
+  <div><b>Visit & contact</b><p>{{ s.addr }}</p><p>{{ s.email }}<br>{{ s.phone }}</p></div>
+  <div><b>Explore</b><a href="/courses">Courses</a><a href="/live">Live classes</a><a href="/teachers">Teachers</a><a href="/news">News</a>{% for p in foot %}<a href="/{{ p.slug }}">{{ p.title }}</a>{% endfor %}</div>
+  <div><b>Follow</b>{% for l,u in [('WhatsApp', ('https://wa.me/' ~ (s.wa|replace('+','')|replace(' ',''))) if s.wa else ''), ('Instagram', s.ig), ('YouTube', s.yt), ('Facebook', s.fb)] %}{% if u %}<a href="{{ u }}" target="_blank" rel="noopener">{{ l }}</a>{% endif %}{% endfor %}</div></div></footer>
+<nav class="bnav" aria-label="Mobile"><a href="/" data-nav="top">{{ ic('home') }}<span>Home</span></a><a href="/#programs" data-nav="programs">{{ ic('layers') }}<span>Programs</span></a><a href="/#admission" data-nav="admission">{{ ic('file') }}<span>Admission</span></a><a href="/#pride" data-nav="pride">{{ ic('trophy') }}<span>Our Pride</span></a><button type="button" data-more data-nav="more" aria-expanded="false" aria-controls="more">{{ ic('more') }}<span>More</span></button></nav>
+<script src="/static/site.js"></script></body></html>

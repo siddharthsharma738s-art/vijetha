@@ -1,0 +1,3 @@
+{% extends 'base.html' %}{% block body %}<section class="sec"><div class="wrap narrow"><h1>{{ e.title }}</h1><div class="tag" id="timer" data-min="{{ e.minutes }}">{{ e.minutes }}:00</div>{% if e.negative %}<p class="mu">Negative marking: wrong answers lose {{ e.neg_mark }} × marks.</p>{% endif %}
+<form method="post" id="exf"><input type="hidden" name="csrf" value="{{ csrf }}">{% for q in qs %}<div class="card"><b>{{ loop.index }}. {{ q.text }}</b> <span class="mu">({{ q.marks }} mark{{ 's' if q.marks != 1 }})</span>
+{% for o in q.options|lines %}<label class="opt"><input type="radio" name="q_{{ q.id }}" value="{{ loop.index }}"> {{ o }}</label>{% endfor %}</div>{% endfor %}<button class="btn">Submit exam</button></form></div></section>{% endblock %}

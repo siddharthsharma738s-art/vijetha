@@ -1,0 +1,4 @@
+{% extends 'base.html' %}{% from '_m.html' import course, post, teacher, liveclass, notice with context %}
+{% block body %}<section class="sec"><div class="wrap"><h1>{{ title }}</h1>{% if page %}<div class="rt">{{ page.body|clean|safe }}</div>{% endif %}
+{% if kind == 'news' %}<div class="bar"><a class="btn sm {{ '' if not request.args.cat else 'o' }}" href="/news">All</a>{% for c in cats %}<a class="btn sm {{ '' if request.args.cat == c else 'o' }}" href="/news?cat={{ c|urlencode }}">{{ c }}</a>{% endfor %}</div>{% endif %}
+<div class="grid">{% for i in items %}{% if kind == 'courses' %}{{ course(i) }}{% elif kind == 'teachers' %}{{ teacher(i) }}{% elif kind == 'live' %}{{ liveclass(i) }}{% elif kind == 'news' %}{{ post(i) }}{% else %}{{ notice(i) }}{% endif %}{% else %}<p>Nothing here yet.</p>{% endfor %}</div></div></section>{% endblock %}

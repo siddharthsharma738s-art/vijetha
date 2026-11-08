@@ -1,0 +1,93 @@
+{% extends 'base.html' %}{% from '_m.html' import course, post, teacher, liveclass, notice with context %}{% from '_icons.html' import ic %}
+{% block body %}
+{% set PR = ['our pride','student achievements','results','toppers','achievements'] %}
+{% set pride = [] %}{% for p in D.posts if (p.cat or '')|lower in PR %}{% set _ = pride.append(p) %}{% endfor %}
+{% set vids = [] %}{% for p in D.posts if p.video %}{% set _ = vids.append(p) %}{% endfor %}
+{% set gal = [] %}
+{% for sl in D.sliders %}{% set _ = gal.append({'img': sl.image, 't': sl.title, 'sub': sl.subtitle, 'url': sl.btn_url, 'btn': sl.btn_text}) %}{% endfor %}
+{% for b in D.banners %}{% if b.image %}{% set _ = gal.append({'img': b.image, 't': b.title, 'sub': '', 'url': b.url, 'btn': ''}) %}{% endif %}{% endfor %}
+{% for p in D.posts if (p.cat or '')|lower == 'gallery' %}{% if p.image %}{% set _ = gal.append({'img': p.image, 't': p.title, 'sub': p.excerpt, 'url': '', 'btn': ''}) %}{% endif %}{% for g in p.gallery %}{% set _ = gal.append({'img': g, 't': p.title, 'sub': '', 'url': '', 'btn': ''}) %}{% endfor %}{% endfor %}
+{% set next = D.live[0] if D.live else none %}
+
+<section id="top" class="hero"><div class="wrap hero-in">
+  <div class="hero-t"><h1>{{ s.hero_h or ('Welcome to ' ~ s.name) }}</h1><p>{{ s.hero_sub }}</p>
+    <div class="hero-b"><a class="btn gold" href="#admission">Admission Registration</a><a class="btn ghost" href="#programs">Explore Programs</a></div></div>
+  <aside class="hero-c" aria-label="Highlights">{% if next %}<small>Next live class</small><h3>{{ next.title }}</h3><p>{{ next.start|dt }}</p>{% if next.url %}<a class="btn sm gold" href="{{ next.url }}" target="_blank" rel="noopener">Join class</a>{% else %}<a class="btn sm gold" href="/live">See schedule</a>{% endif %}
+    {% else %}<small>Admissions open</small><h3>Classes 4 &amp; 5</h3><p>Apply online in two minutes.</p><a class="btn sm gold" href="#admission">Apply now</a>{% endif %}</aside>
+</div></section>
+
+<section id="gallery" class="sec"><div class="wrap"><h2>Academy gallery</h2><p class="sub">Posters, events and moments from the academy.</p>
+  <div class="slider" id="slider" aria-roledescription="carousel" aria-label="Academy gallery">
+    <div class="track" id="track" tabindex="0">{% for g in gal %}<figure class="sl{{ ' nog' if not g.img }}" aria-roledescription="slide">
+      {% if g.img %}<button class="sl-i" type="button" data-full="{{ g.img }}" data-cap="{{ g.t }}" aria-label="Open full screen: {{ g.t }}"><img src="{{ g.img }}" alt="{{ g.t }}" loading="{{ 'eager' if loop.first else 'lazy' }}">{{ ic('expand','ic ex') }}</button>{% endif %}
+      <figcaption><b>{{ g.t }}</b>{% if g.sub %}<span>{{ g.sub }}</span>{% endif %}{% if g.btn and g.url %}<a class="btn sm gold" href="{{ g.url }}">{{ g.btn }}</a>{% endif %}</figcaption></figure>
+    {% else %}<figure class="sl nog"><figcaption><b>{{ s.name }}</b><span>{{ s.tagline }}</span></figcaption></figure>{% endfor %}</div>
+    <button class="sb prev" type="button" aria-label="Previous slide">{{ ic('left') }}</button><button class="sb next" type="button" aria-label="Next slide">{{ ic('right') }}</button>
+    <div class="dots" id="dots" aria-hidden="true"></div></div></div></section>
+
+<section id="videos" class="sec alt"><div class="wrap"><h2>Academy videos</h2><p class="sub">Introduction, classroom and event videos.</p>
+  <div class="grid vgrid">{% for p in vids[:6] %}{% set emb = p.video|embed %}<article class="card vcard">
+    {% if emb %}{% set vid = emb.split('/')[-1] %}<button class="vplay" type="button" data-yt="{{ vid }}" aria-label="Play video: {{ p.title }}"><img src="https://i.ytimg.com/vi/{{ vid }}/hqdefault.jpg" alt="" loading="lazy"><span class="pb">{{ ic('play') }}</span></button>
+    {% elif p.video.endswith('.mp4') %}<video controls playsinline preload="metadata" src="{{ p.video }}"></video>
+    {% else %}<a class="vplay lnk" href="{{ p.video }}" target="_blank" rel="noopener"><span class="pb">{{ ic('play') }}</span></a>{% endif %}
+    <div class="vb"><span class="tag">{{ p.cat or 'Video' }}</span><h3>{{ p.title }}</h3></div></article>
+  {% else %}<div class="card empty">Videos will appear here. {% if is_staff %}Add a post with a YouTube or MP4 link in the admin panel.{% endif %}</div>{% endfor %}</div></div></section>
+
+<section id="programs" class="sec"><div class="wrap"><h2>Learning programs</h2><p class="sub">Choose a program to see details.</p>
+  <div class="pgrid">
+  {% for k,t,d,i in [('online','Online Classes','Live and recorded lessons with doubt support.','monitor'),('navodaya','Navodaya / Sainik','Focused entrance preparation for JNV and Sainik schools.','target'),('gurukulam','Gurukulam','Values, discipline and mentoring along with studies.','temple'),('materials','Study Materials','Notes, PDFs and worksheets for enrolled students.','book'),('tests','Practice Tests','Timed tests with instant scores and explanations.','check'),('staff','Staff & Guidance','Meet our teachers and get guidance for your child.','users')] %}
+    <button class="pc" type="button" data-prog="{{ k }}" aria-haspopup="dialog"><span class="pi">{{ ic(i) }}</span><b>{{ t }}</b><span>{{ d }}</span><span class="go">Open {{ ic('right','ic sm') }}</span></button>
+  {% endfor %}</div></div></section>
+
+<section id="admission" class="sec adm-s"><div class="wrap adm-in">
+  <div class="adm-t"><h2>Admission registration</h2><p>Apply for Class 4 or Class 5. Our team will call you to confirm the next steps.</p><ul><li>Takes about two minutes</li><li>No payment needed to apply</li><li>We reply on the mobile number you give</li></ul></div>
+  <form class="card adm-f" id="admForm" novalidate data-csrf="{{ csrf }}"><h3>Student details</h3>
+    <label for="a_f">Father's name</label><input id="a_f" autocomplete="off" maxlength="60" required>
+    <label for="a_s">Student's name</label><input id="a_s" autocomplete="off" maxlength="60" required>
+    <label for="a_m">Mobile number</label><input id="a_m" type="tel" inputmode="numeric" autocomplete="tel" maxlength="10" pattern="[0-9]{10}" placeholder="10-digit number" required>
+    <fieldset><legend>Class</legend><label class="rad"><input type="radio" name="a_c" value="4th" required><span>4th</span></label><label class="rad"><input type="radio" name="a_c" value="5th"><span>5th</span></label></fieldset>
+    <p class="err" id="a_e" role="alert"></p><button class="btn gold block" type="submit">Submit Application</button><p class="ok" id="a_ok" role="status"></p></form></div></section>
+
+<section id="pride" class="sec alt"><div class="wrap"><h2>Our Pride</h2><p class="sub">Our toppers and their achievements.</p>
+  <div class="grid prgrid">{% for p in pride[:12] %}{% set pts = (p.excerpt or '').split('|') %}<article class="card pr">
+    {% if p.image %}<button class="pr-i" type="button" data-full="{{ p.image }}" data-cap="{{ p.title }}" aria-label="View photo of {{ p.title }}"><img src="{{ p.image }}" alt="{{ p.title }}" loading="lazy"></button>{% else %}<div class="pr-i nop">{{ p.title[:1] }}</div>{% endif %}
+    <div class="pr-b"><span class="tag">{{ (p.tags|first) if p.tags else (p.publish_at or p._c)[:4] }}</span><h3>{{ p.title }}</h3><div class="exam">{{ pts[0]|trim }}</div>{% if pts|length > 1 %}<div class="marks">{{ pts[1]|trim }}</div>{% endif %}</div></article>
+  {% else %}<div class="card empty">Our toppers will be featured here. {% if is_staff %}In the admin panel, add a post in the category <b>Our Pride</b>: title = student name, short description = “Exam name | Marks”, cover image = photo, first tag = academic year.{% endif %}</div>{% endfor %}</div></div></section>
+
+{% for x in secs if x.key != 'hero' %}{% set n = x.count or 6 %}
+{% if x.key == 'notices' and D.notices %}<section class="sec"><div class="wrap"><h2>{{ x.title }}</h2><p class="sub">{{ x.subtitle }}</p><div class="grid">{% for k in D.notices[:(s.notices_home or 5)] %}{{ notice(k) }}{% endfor %}</div></div></section>
+{% elif x.key == 'courses' and D.courses %}<section class="sec"><div class="wrap"><h2>{{ x.title }}</h2><p class="sub">{{ x.subtitle }}</p><div class="grid">{% for c in D.courses[:(s.courses_home or n)] %}{{ course(c) }}{% endfor %}</div></div></section>
+{% elif x.key == 'live' and D.live %}<section class="sec"><div class="wrap"><h2>{{ x.title }}</h2><p class="sub">{{ x.subtitle }}</p><div class="grid">{% for k in D.live[:n] %}{{ liveclass(k) }}{% endfor %}</div></div></section>
+{% elif x.key == 'teachers' and D.teachers %}<section class="sec"><div class="wrap"><h2>{{ x.title }}</h2><p class="sub">{{ x.subtitle }}</p><div class="grid">{% for t in D.teachers[:n] %}{{ teacher(t) }}{% endfor %}</div></div></section>
+{% elif x.key == 'posts' and D.posts %}<section class="sec"><div class="wrap"><h2>{{ x.title }}</h2><p class="sub"><a href="/news">View all news</a></p><div class="grid">{% for p in D.posts[:n] %}{{ post(p) }}{% endfor %}</div></div></section>
+{% elif x.key == 'testimonials' and D.testimonials %}<section class="sec"><div class="wrap"><h2>{{ x.title }}</h2><p class="sub">{{ x.subtitle }}</p><div class="grid">{% for t in D.testimonials[:n] %}<div class="card">“{{ t.text }}”<br><b>– {{ t.name }}{% if t.role %}, {{ t.role }}{% endif %}</b></div>{% endfor %}</div></div></section>
+{% elif x.key == 'banners' and D.banners %}<section class="sec"><div class="wrap grid">{% for b in D.banners[:n] %}<a href="{{ b.url or '#' }}">{% if b.image %}<img class="th" src="{{ b.image }}" alt="{{ b.title }}">{% else %}<div class="card">{{ b.title }}</div>{% endif %}</a>{% endfor %}</div></section>
+{% elif x.key in ('about','custom') %}<section class="sec"><div class="wrap"><h2>{{ x.title }}</h2><p class="sub">{{ x.subtitle }}</p><div class="rt">{{ x.body|clean|safe }}</div></div></section>
+{% elif x.key == 'contact' %}<section class="sec"><div class="wrap"><h2>{{ x.title }}</h2><p class="sub">{{ x.subtitle }}</p><div class="rt">{{ x.body|clean|safe }}</div><div class="card"><b>{{ s.addr }}</b><br>{{ s.email }} · {{ s.phone }}</div>{% include '_contact.html' %}</div></section>
+{% endif %}{% endfor %}
+
+{# ---------- full-screen program pages ---------- #}
+{% macro ov(k, t, i) %}<section class="ov" id="ov-{{ k }}" role="dialog" aria-modal="true" aria-labelledby="ovt-{{ k }}" hidden><div class="ov-top"><button type="button" class="ov-x" data-close aria-label="Close">{{ ic('left') }} Back</button></div>
+  <div class="wrap ov-in"><span class="pi big">{{ ic(i) }}</span><h2 id="ovt-{{ k }}">{{ t }}</h2>{{ caller() }}</div></section>{% endmacro %}
+{% call ov('online','Online Classes','monitor') %}<p class="lead">Attend live classes from home and rewatch recordings whenever you need. Students ask doubts during class and revise from the recorded lessons.</p>
+  <h3>Courses</h3><div class="grid">{% for c in D.courses[:6] %}{{ course(c) }}{% else %}<p class="mu">Courses will be announced soon.</p>{% endfor %}</div>
+  <h3>Upcoming live classes</h3><div class="grid">{% for k in D.live[:3] %}{{ liveclass(k) }}{% else %}<p class="mu">No live class is scheduled right now.</p>{% endfor %}</div>
+  <p class="ov-cta"><a class="btn" href="/courses">All courses</a> <a class="btn o" href="/live">Live schedule</a></p>{% endcall %}
+{% call ov('navodaya','Navodaya / Sainik','target') %}<p class="lead">Preparation for Jawahar Navodaya Vidyalaya and Sainik School entrance tests: reasoning, mathematics, language and general awareness, practised with regular timed tests.</p>
+  <h3>Related courses</h3><div class="grid">{% for c in D.courses if 'navodaya' in (c.title ~ ' ' ~ (c.desc or ''))|lower or 'sainik' in (c.title ~ ' ' ~ (c.desc or ''))|lower %}{{ course(c) }}{% else %}<p class="mu">See all courses for the current batches.</p>{% endfor %}</div>
+  <p class="ov-cta"><a class="btn gold" href="#admission" data-close>Apply for admission</a> <a class="btn o" href="/courses">All courses</a></p>{% endcall %}
+{% call ov('gurukulam','Gurukulam','temple') %}<p class="lead">A balanced routine that builds character alongside academics: discipline, punctuality, respect for teachers and daily self-study habits.</p>
+  <div class="grid"><div class="card"><h3>Daily routine</h3>Structured study hours with regular revision.</div><div class="card"><h3>Mentoring</h3>Teachers track each student's progress and guide parents.</div><div class="card"><h3>Values</h3>Focus on discipline, honesty and teamwork.</div></div>
+  <p class="ov-cta"><a class="btn gold" href="#admission" data-close>Apply for admission</a></p>{% endcall %}
+{% call ov('materials','Study Materials','book') %}<p class="lead">Enrolled students get notes, PDFs and worksheets with every course. Log in to open the lessons of your course.</p>
+  <div class="grid">{% for c in D.courses[:6] %}<div class="card"><h3>{{ c.title }}</h3><a class="btn sm" href="/course/{{ c.slug }}">View materials</a></div>{% else %}<p class="mu">Materials will be added with each course.</p>{% endfor %}</div>
+  <p class="ov-cta">{% if user %}<a class="btn" href="/account">My courses</a>{% else %}<a class="btn" href="/login">Student login</a> {% if s.allow_reg %}<a class="btn o" href="/register">Create student account</a>{% endif %}{% endif %}</p>{% endcall %}
+{% call ov('tests','Practice Tests','check') %}<p class="lead">Practise with timed tests. Marks are calculated automatically and, once the academy publishes results, you can review every answer with explanations.</p>
+  <div class="grid"><div class="card"><h3>Timed</h3>Real exam timing with automatic submission.</div><div class="card"><h3>Instant score</h3>Negative marking is applied where the test uses it.</div><div class="card"><h3>Explanations</h3>Understand every answer after results are published.</div></div>
+  <p class="ov-cta">{% if user %}<a class="btn" href="/account">Open my tests</a>{% else %}<a class="btn" href="/login">Log in to take tests</a>{% endif %}</p>{% endcall %}
+{% call ov('staff','Staff & Guidance','users') %}<p class="lead">Our teachers guide every student, and we are always available to advise parents on choosing the right program.</p>
+  <h3>Our teachers</h3><div class="grid">{% for t in D.teachers %}{{ teacher(t) }}{% else %}<p class="mu">Teacher profiles coming soon.</p>{% endfor %}</div>
+  <p class="ov-cta"><a class="btn" href="/contact-us">Contact us</a> {% if s.phone %}<a class="btn o" href="tel:{{ s.phone|replace(' ','') }}">{{ ic('phone','ic sm') }} {{ s.phone }}</a>{% endif %}</p>{% endcall %}
+
+<div id="lb" class="lb" role="dialog" aria-modal="true" aria-label="Image preview" hidden><button class="lb-x" type="button" data-lbc aria-label="Close preview">{{ ic('x') }}</button><button class="sb prev" type="button" data-lbp aria-label="Previous">{{ ic('left') }}</button><img id="lbi" alt=""><button class="sb next" type="button" data-lbn aria-label="Next">{{ ic('right') }}</button><p id="lbc"></p></div>
+{% endblock %}

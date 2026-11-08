@@ -1,0 +1,9 @@
+{% extends 'base.html' %}{% block body %}<section class="sec"><div class="wrap narrow"><span class="tag">{{ p.cat or 'News' }}</span> {% if p.status != 'published' %}<span class="tag lv">{{ p.status }}</span>{% endif %}<h1>{{ p.title }}</h1><div class="mu">{{ (p.publish_at or p._c)[:10] }}</div>
+{% if p.image %}<img class="th big" src="{{ p.image }}" alt="">{% endif %}<div class="rt">{{ p.body|clean|safe }}</div>
+{% set emb = p.video|embed %}{% if emb %}<iframe class="vid" src="{{ emb }}" allowfullscreen loading="lazy" title="Video"></iframe>{% elif p.video and p.video.endswith('.mp4') %}<video class="vid" controls src="{{ p.video }}"></video>{% elif p.video %}<p><a href="{{ p.video }}" target="_blank" rel="noopener">Watch video</a></p>{% endif %}
+{% if p.gallery %}<div class="grid">{% for g in p.gallery %}<img class="th" src="{{ g }}" alt="">{% endfor %}</div>{% endif %}
+{% if p.ext_link %}<p><a class="btn o" href="{{ p.ext_link }}" target="_blank" rel="noopener">Read more ↗</a></p>{% endif %}
+{% if p.tags %}<p>{% for t in p.tags %}<a class="tag" href="/news?tag={{ t|urlencode }}">#{{ t }}</a> {% endfor %}</p>{% endif %}
+{% if p.comments_on %}<h2>Comments</h2>{% for c in comments %}<div class="card"><b>{{ c.name }}</b><p>{{ c.text }}</p></div>{% else %}<p class="mu">No comments yet.</p>{% endfor %}
+<form class="card" method="post" action="/post/{{ p.slug }}/comment"><input type="hidden" name="csrf" value="{{ csrf }}"><input class="hp" name="website" tabindex="-1" autocomplete="off"><label>Name<input name="name" maxlength="60"></label><label>Comment<textarea name="text" rows="3" required maxlength="1500"></textarea></label><br><button class="btn sm">Post comment</button></form>{% endif %}
+</div></section>{% endblock %}

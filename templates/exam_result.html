@@ -1,0 +1,4 @@
+{% extends 'base.html' %}{% block body %}<section class="sec"><div class="wrap narrow"><h1>{{ e.title }}</h1>
+{% if e.results_published %}<div class="card"><div class="price">{{ a.score }} / {{ a.total }}</div>{% if a.late %}<p class="msg">Submitted after the time limit.</p>{% endif %}</div>
+{% for q in qs %}{% set mine = a.answers.get(q.id) %}<div class="card"><b>{{ loop.index }}. {{ q.text }}</b>{% for o in q.options|lines %}<div class="{{ 'okc' if loop.index == q.answer }} {{ 'bad' if mine == loop.index and loop.index != q.answer }}">{{ loop.index }}. {{ o }}{% if loop.index == q.answer %} ✔{% endif %}{% if mine == loop.index %} (your answer){% endif %}</div>{% endfor %}{% if q.explanation %}<p class="mu">{{ q.explanation }}</p>{% endif %}</div>{% endfor %}
+{% else %}<div class="card">Your answers were submitted. Results will appear here once the academy publishes them.</div>{% endif %}</div></section>{% endblock %}

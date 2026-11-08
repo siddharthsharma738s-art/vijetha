@@ -1,0 +1,8 @@
+{% extends 'base.html' %}{% block body %}<section class="sec"><div class="wrap learn"><aside class="card"><h3>{{ c.title }}</h3>{% for l in ls %}<a class="row {{ 'on' if cur and cur.id == l.id }}" href="/learn/{{ c.slug }}?l={{ l.id }}">{{ l.chapter }} · {{ l.title }}{% if not acc and not l.preview %} 🔒{% endif %}</a>{% endfor %}</aside>
+<div>{% if cur %}<h1>{{ cur.title }}</h1>{% set emb = cur.url|embed %}
+{% if emb %}<iframe class="vid" src="{{ emb }}" allowfullscreen title="Lesson video"></iframe>
+{% elif cur.file and cur.file.endswith('.mp4') %}<video class="vid" controls src="{{ cur.file }}"></video>
+{% elif cur.file and cur.file.endswith('.pdf') %}<iframe class="vid pdf" src="{{ cur.file }}" title="PDF"></iframe><p><a class="btn sm o" href="{{ cur.file }}">Open PDF</a></p>
+{% elif cur.file %}<a class="btn" href="{{ cur.file }}">Download file</a>{% endif %}
+{% if cur.url and not emb %}<a class="btn" href="{{ cur.url }}" target="_blank" rel="noopener">Open link ↗</a>{% endif %}
+<div class="rt">{{ cur.body|clean|safe }}</div>{% else %}<p>No lessons yet.</p>{% endif %}</div></div></section>{% endblock %}
